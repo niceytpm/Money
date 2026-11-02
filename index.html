@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#f4efff">
-<title>บันทึกค่าไฟ · Lavender</title>
+<title>คำนวณค่าไฟ · Lavender</title>
 <style>
 :root{--bg:#f7f3ff;--paper:#fff;--ink:#44365f;--muted:#9589aa;--purple:#9274c9;--deep:#7658b4;--pale:#eee7ff;--line:#eee8f7;--pink:#f7e7f4;--green:#6eaa91;--shadow:0 10px 30px rgba(105,78,151,.09)}
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#f2ecff 0,#faf8ff 300px,var(--bg) 100%);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom);-webkit-tap-highlight-color:transparent}
@@ -35,7 +35,7 @@ input:focus{border-color:#a88bdc;box-shadow:0 0 0 3px #eee6ff}
 </head>
 <body>
 <div class="wrap">
-  <header class="top"><div class="brand">บันทึกค่าไฟของฉัน <small>Little lavender electricity diary</small></div><div class="flower">🌷</div></header>
+  <header class="top"><div class="brand">คำนวณค่าไฟ <small>Little lavender electricity diary</small></div><div class="flower">🌷</div></header>
   <section class="card summary">
     <div class="eyebrow" id="summaryMonth">สรุปค่าไฟประจำเดือน</div>
     <div class="total" id="monthCost">฿0.00</div>
@@ -60,7 +60,7 @@ input:focus{border-color:#a88bdc;box-shadow:0 0 0 3px #eee6ff}
       </section>
       <section class="card">
         <div class="section-title"><span>⚙️ ตั้งค่าอัตราค่าไฟ</span></div>
-        <div class="rate-row"><div style="flex:1"><label for="rate">ราคาต่อหน่วย (บาท)</label><input id="rate" type="number" inputmode="decimal" min="0" step="0.01" value="4.20"></div><div style="font-size:11px;color:var(--muted);max-width:105px">ปรับตามอัตราที่ต้องการได้</div></div>
+        <div class="rate-row"><div style="flex:1"><label for="rate">ราคาต่อหน่วย (บาท)</label><input id="rate" type="number" inputmode="decimal" min="0" step="0.01" value="4.20"></div><div style="font-size:11px;color:var(--muted);max-width:105px">ระบบจะบันทึกอัตราล่าสุดไว้ให้อัตโนมัติ</div></div>
         <p class="hint">ยอดเงินเป็นค่าประมาณจากหน่วย × ราคาต่อหน่วย ยังไม่รวมค่าบริการหรือ VAT</p>
       </section>
       <section class="card">
@@ -75,7 +75,16 @@ input:focus{border-color:#a88bdc;box-shadow:0 0 0 3px #eee6ff}
 (()=>{
 const $=id=>document.getElementById(id);
 const storeKey='lavenderElectricityDiary_v1';
+const rateKey='lavenderElectricityRate_v1';
+
 let data={}; try{data=JSON.parse(localStorage.getItem(storeKey)||'{}')}catch(e){data={}}
+
+// โหลดราคาต่อหน่วยล่าสุดที่เคยบันทึกไว้
+const savedRate=localStorage.getItem(rateKey);
+if(savedRate!==null&&!isNaN(savedRate)){
+ $('rate').value=savedRate;
+}
+
 let view=new Date(); view.setDate(1);
 let selected=new Date(); selected.setHours(12,0,0,0);
 const pad=n=>String(n).padStart(2,'0'), key=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
@@ -86,6 +95,8 @@ function previousReading(k){const prev=sortedKeys().filter(x=>x<k);return prev.l
 function usage(k){const current=Number(data[k]);const prev=previousReading(k);return prev?current-prev.value:null}
 function rate(){return Math.max(0,Number($('rate').value)||0)}
 function saveStore(){localStorage.setItem(storeKey,JSON.stringify(data))}
+function saveRate(){localStorage.setItem(rateKey,$('rate').value)}
+
 function render(){
  const y=view.getFullYear(),m=view.getMonth(),monthKey=`${y}-${pad(m+1)}`;
  $('monthLabel').textContent=`${monthNames[m]} ${y+543}`;
@@ -123,7 +134,7 @@ function updatePreview(){
  $('calcNote').textContent=diff>=0?`ประมาณ ${money(diff*rate())} · เทียบกับวันที่ ${prev.key.split('-').reverse().join('/')}`:'ตรวจสอบเลขมิเตอร์อีกครั้ง';
 }
 $('meter').addEventListener('input',updatePreview);
-$('rate').addEventListener('input',()=>{render()});
+$('rate').addEventListener('input',()=>{saveRate();render()});
 $('save').addEventListener('click',()=>{
  const v=$('meter').value,k=key(selected);if(v===''||!Number.isFinite(Number(v))||Number(v)<0){alert('กรุณากรอกเลขมิเตอร์ให้ถูกต้อง');return}
  const prev=previousReading(k);if(prev&&Number(v)<prev.value){if(!confirm('เลขมิเตอร์น้อยกว่าครั้งก่อน ต้องการบันทึกหรือไม่?'))return}
