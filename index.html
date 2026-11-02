@@ -54,7 +54,7 @@ input:focus{border-color:#a88bdc;box-shadow:0 0 0 3px #eee6ff}
       <section class="card">
         <div class="section-title"><span>✏️ บันทึกเลขมิเตอร์</span><span id="selectedLabel" class="muted" style="font-size:12px"></span></div>
         <label for="meter">เลขมิเตอร์ของวันที่เลือก</label>
-        <input id="meter" type="number" inputmode="decimal" min="0" step="any" placeholder="เช่น 1250.5">
+        <input id="meter" type="number" inputmode="decimal" min="0" step="any" placeholder="ใส่เลขที่นี่...">
         <div class="reading"><small>ใช้ไปจากครั้งก่อน</small><strong id="used">—</strong><small id="calcNote">กรอกเลขมิเตอร์เพื่อคำนวณผลต่าง</small></div>
         <div class="actions"><button class="btn primary" id="save">บันทึกวันนี้</button><button class="btn danger" id="delete">ลบ</button></div>
       </section>
@@ -116,7 +116,17 @@ function render(){
  monthRecords.forEach(k=>{const u=usage(k);if(u!==null&&u>=0){units+=u;cost+=u*rate();valid++}});
  $('monthCost').textContent=money(cost);$('monthUnits').textContent=units.toLocaleString('th-TH',{maximumFractionDigits:2})+' หน่วย';$('savedDays').textContent=monthRecords.length+' วัน';
  $('selectedLabel').textContent=`${selected.getDate()} ${monthNames[selected.getMonth()]}`;
+ 
  $('meter').value=Object.hasOwn(data,key(selected))?data[key(selected)]:'';
+
+ // ตั้งค่าข้อความแนะนำ (Placeholder) ในช่องกรอกตามวันก่อนหน้า
+ const prev=previousReading(key(selected));
+ if(prev){
+  $('meter').placeholder=`แนะนำ: ${prev.value} (จากวันที่ ${prev.key.split('-').reverse().join('/')})`;
+ }else{
+  $('meter').placeholder='ใส่เลขที่นี่...';
+ }
+
  updatePreview();
  const entries=$('entries');entries.innerHTML='';
  if(!monthRecords.length){entries.innerHTML='<div class="muted" style="font-size:12px">ยังไม่มีรายการในเดือนนี้ 🌸</div>'}
@@ -138,7 +148,6 @@ $('save').addEventListener('click',()=>{
  const v=$('meter').value,k=key(selected);if(v===''||!Number.isFinite(Number(v))||Number(v)<0){alert('กรุณากรอกเลขมิเตอร์ให้ถูกต้อง');return}
  const prev=previousReading(k);if(prev&&Number(v)<prev.value){if(!confirm('เลขมิเตอร์น้อยกว่าครั้งก่อน ต้องการบันทึกหรือไม่?'))return}
  
- // เพิ่มป๊อปอัปยืนยันการบันทึกข้อมูล
  if(confirm(`ยืนยันการบันทึกเลขมิเตอร์ "${v}" ของวันที่ ${selected.getDate()} ${monthNames[selected.getMonth()]} ${selected.getFullYear()+543} ใช่ไหมครับ?`)){
   data[k]=Number(v);saveStore();render();
   alert('บันทึกข้อมูลเรียบร้อยแล้วครับ 🌸');
