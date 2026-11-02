@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f4efff">
+<title>บันทึกค่าไฟ · Lavender</title>
+<style>
+:root{--bg:#f7f3ff;--paper:#fff;--ink:#44365f;--muted:#9589aa;--purple:#9274c9;--deep:#7658b4;--pale:#eee7ff;--line:#eee8f7;--pink:#f7e7f4;--green:#6eaa91;--shadow:0 10px 30px rgba(105,78,151,.09)}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#f2ecff 0,#faf8ff 300px,var(--bg) 100%);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom);-webkit-tap-highlight-color:transparent}
+.wrap{max-width:760px;margin:auto;padding:18px 0 34px}.top{display:flex;justify-content:space-between;align-items:center;margin:4px 2px 16px}.brand{font-weight:800;font-size:20px;letter-spacing:.2px}.brand small{display:block;font-weight:500;color:var(--muted);font-size:12px;margin-top:2px}.flower{font-size:28px}
+.card{background:var(--paper);border:1px solid #f0eafb;border-radius:23px;padding:17px;box-shadow:var(--shadow);margin-bottom:14px}
+.summary{background:linear-gradient(135deg,#9b80d0,#b49cde);color:white;border:0;padding:20px;position:relative;overflow:hidden}.summary:after{content:"✿";position:absolute;right:17px;top:6px;font-size:76px;color:#ffffff24}.eyebrow{font-size:12px;opacity:.85}.total{font-size:34px;font-weight:850;letter-spacing:-.8px;margin:4px 0 14px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{background:#ffffff22;border:1px solid #ffffff2c;border-radius:15px;padding:10px}.stat span{display:block;font-size:11px;opacity:.85}.stat b{font-size:17px}
+.section-title{display:flex;align-items:center;justify-content:space-between;font-weight:800;margin-bottom:13px}.month-nav{display:flex;align-items:center;gap:12px}.month-nav button,.icon-btn{border:0;background:var(--pale);color:var(--deep);border-radius:12px;width:36px;height:34px;font-size:19px;font-weight:700}
+.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.weekday{text-align:center;color:var(--muted);font-size:11px;padding:5px 0}.day{border:1px solid transparent;background:#faf8ff;border-radius:13px;min-height:57px;padding:5px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--ink);font:inherit;cursor:pointer}.day .num{font-size:13px;font-weight:700}.day .amount{font-size:9px;color:var(--deep);white-space:nowrap}.day.selected{background:#e9dfff;border-color:#b99fe8}.day.today .num{color:#8b65cb;text-decoration:underline;text-underline-offset:3px}.day.has .dot{width:5px;height:5px;background:#9a7bd0;border-radius:50%}.day.empty{background:transparent;pointer-events:none}
+.hint{font-size:11px;color:var(--muted);margin:10px 2px 0}
+label{display:block;font-size:12px;color:var(--muted);font-weight:650;margin:0 0 6px}
+input{width:100%;border:1px solid #e8e0f3;background:#fcfbff;border-radius:14px;padding:14px 13px;font:inherit;font-size:20px;color:var(--ink);outline:none}
+input:focus{border-color:#a88bdc;box-shadow:0 0 0 3px #eee6ff}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.reading{margin-top:12px;background:#f7f3ff;border-radius:15px;padding:12px}.reading strong{font-size:20px;color:var(--deep)}.reading small{display:block;color:var(--muted);font-size:11px}
+.actions{display:flex;gap:9px;margin-top:13px}.btn{border:0;border-radius:14px;padding:13px 15px;font:inherit;font-weight:750;cursor:pointer}.primary{background:var(--purple);color:#fff;flex:1}.secondary{background:var(--pale);color:var(--deep)}.danger{background:#fff0f3;color:#bd6b86}
+.rate-row{display:flex;align-items:center;gap:10px}.rate-row input{max-width:130px;font-size:16px;padding:10px}
+.list{display:flex;flex-direction:column;gap:8px}.entry{display:flex;justify-content:space-between;align-items:center;background:#faf8ff;border-radius:13px;padding:11px 12px;font-size:13px}.entry b{font-size:14px}.muted{color:var(--muted)}.foot{text-align:center;color:var(--muted);font-size:11px;padding:5px}
+@media(min-width:620px){.layout{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;align-items:start}.summary{grid-column:1/-1}.card{margin-bottom:0}.side{display:flex;flex-direction:column;gap:14px}.side .card{margin:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top"><div class="brand">บันทึกค่าไฟของฉัน <small>Little lavender electricity diary</small></div><div class="flower">🌷</div></header>
+  <section class="card summary">
+    <div class="eyebrow" id="summaryMonth">สรุปค่าไฟประจำเดือน</div>
+    <div class="total" id="monthCost">฿0.00</div>
+    <div class="stats">
+      <div class="stat"><span>หน่วยไฟสะสม</span><b id="monthUnits">0 หน่วย</b></div>
+      <div class="stat"><span>วันที่บันทึก</span><b id="savedDays">0 วัน</b></div>
+    </div>
+  </section>
+  <div class="layout">
+    <section class="card">
+      <div class="section-title"><span>🗓️ ปฏิทินของฉัน</span><div class="month-nav"><button id="prev" aria-label="เดือนก่อน">‹</button><b id="monthLabel"></b><button id="next" aria-label="เดือนถัดไป">›</button></div></div>
+      <div class="calendar" id="calendar"></div>
+      <p class="hint">แตะวันที่ต้องการเพื่อบันทึกเลขมิเตอร์ 💜</p>
+    </section>
+    <div class="side">
+      <section class="card">
+        <div class="section-title"><span>✏️ บันทึกเลขมิเตอร์</span><span id="selectedLabel" class="muted" style="font-size:12px"></span></div>
+        <label for="meter">เลขมิเตอร์ของวันที่เลือก</label>
+        <input id="meter" type="number" inputmode="decimal" min="0" step="any" placeholder="เช่น 1250.5">
+        <div class="reading"><small>ใช้ไปจากครั้งก่อน</small><strong id="used">—</strong><small id="calcNote">กรอกเลขมิเตอร์เพื่อคำนวณผลต่าง</small></div>
+        <div class="actions"><button class="btn primary" id="save">บันทึกวันนี้</button><button class="btn danger" id="delete">ลบ</button></div>
+      </section>
+      <section class="card">
+        <div class="section-title"><span>⚙️ ตั้งค่าอัตราค่าไฟ</span></div>
+        <div class="rate-row"><div style="flex:1"><label for="rate">ราคาต่อหน่วย (บาท)</label><input id="rate" type="number" inputmode="decimal" min="0" step="0.01" value="4.20"></div><div style="font-size:11px;color:var(--muted);max-width:105px">ปรับตามอัตราที่ต้องการได้</div></div>
+        <p class="hint">ยอดเงินเป็นค่าประมาณจากหน่วย × ราคาต่อหน่วย ยังไม่รวมค่าบริการหรือ VAT</p>
+      </section>
+      <section class="card">
+        <div class="section-title"><span>💜 รายการในเดือนนี้</span></div>
+        <div id="entries" class="list"><div class="muted" style="font-size:12px">ยังไม่มีรายการ</div></div>
+      </section>
+    </div>
+  </div>
+  <div class="foot">ข้อมูลบันทึกไว้ในอุปกรณ์นี้โดยอัตโนมัติ ✿</div>
+</div>
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+const storeKey='lavenderElectricityDiary_v1';
+let data={}; try{data=JSON.parse(localStorage.getItem(storeKey)||'{}')}catch(e){data={}}
+let view=new Date(); view.setDate(1);
+let selected=new Date(); selected.setHours(12,0,0,0);
+const pad=n=>String(n).padStart(2,'0'), key=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const money=n=>'฿'+(Number(n)||0).toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});
+const monthNames=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+const sortedKeys=()=>Object.keys(data).filter(k=>Number.isFinite(Number(data[k]))).sort();
+function previousReading(k){const prev=sortedKeys().filter(x=>x<k);return prev.length?{key:prev[prev.length-1],value:Number(data[prev[prev.length-1]])}:null}
+function usage(k){const current=Number(data[k]);const prev=previousReading(k);return prev?current-prev.value:null}
+function rate(){return Math.max(0,Number($('rate').value)||0)}
+function saveStore(){localStorage.setItem(storeKey,JSON.stringify(data))}
+function render(){
+ const y=view.getFullYear(),m=view.getMonth(),monthKey=`${y}-${pad(m+1)}`;
+ $('monthLabel').textContent=`${monthNames[m]} ${y+543}`;
+ $('summaryMonth').textContent=`สรุปค่าไฟประจำเดือน ${monthNames[m]} ${y+543}`;
+ const first=new Date(y,m,1),offset=first.getDay(),days=new Date(y,m+1,0).getDate();
+ const cal=$('calendar');cal.innerHTML='';
+ ['อา','จ','อ','พ','พฤ','ศ','ส'].forEach(w=>{let e=document.createElement('div');e.className='weekday';e.textContent=w;cal.append(e)});
+ for(let i=0;i<offset;i++){let e=document.createElement('div');e.className='day empty';cal.append(e)}
+ for(let n=1;n<=days;n++){
+  const d=new Date(y,m,n,12),k=key(d),u=usage(k),has=Object.hasOwn(data,k),b=document.createElement('button');
+  b.className='day'+(key(selected)===k?' selected':'')+(has?' has':'')+(key(new Date())===k?' today':'');
+  b.innerHTML=`<span class="num">${n}</span>${u!==null&&u>=0?`<span class="amount">${u.toLocaleString('th-TH',{maximumFractionDigits:2})} หน่วย</span>`:has?'<span class="dot"></span>':''}`;
+  b.addEventListener('click',()=>{selected=d;render()});cal.append(b);
+ }
+ const monthRecords=sortedKeys().filter(k=>k.startsWith(monthKey));
+ let units=0,cost=0,valid=0;
+ monthRecords.forEach(k=>{const u=usage(k);if(u!==null&&u>=0){units+=u;cost+=u*rate();valid++}});
+ $('monthCost').textContent=money(cost);$('monthUnits').textContent=units.toLocaleString('th-TH',{maximumFractionDigits:2})+' หน่วย';$('savedDays').textContent=monthRecords.length+' วัน';
+ $('selectedLabel').textContent=`${selected.getDate()} ${monthNames[selected.getMonth()]}`;
+ $('meter').value=Object.hasOwn(data,key(selected))?data[key(selected)]:'';
+ updatePreview();
+ const entries=$('entries');entries.innerHTML='';
+ if(!monthRecords.length){entries.innerHTML='<div class="muted" style="font-size:12px">ยังไม่มีรายการในเดือนนี้ 🌸</div>'}
+ monthRecords.slice().reverse().forEach(k=>{let u=usage(k),d=new Date(k+'T12:00:00'),row=document.createElement('div');row.className='entry';row.innerHTML=`<span>${d.getDate()} ${monthNames[d.getMonth()]}</span><span style="text-align:right"><b>${u===null?'—':u.toLocaleString('th-TH',{maximumFractionDigits:2})+' หน่วย'}</b><br><span class="muted">${u===null?'ยังไม่มีเลขก่อนหน้า':money(Math.max(0,u)*rate())}</span></span>`;row.addEventListener('click',()=>{selected=d;render()});entries.append(row)});
+}
+function updatePreview(){
+ const v=$('meter').value,k=key(selected),prev=previousReading(k);
+ if(v===''){ $('used').textContent='—';$('calcNote').textContent='กรอกเลขมิเตอร์เพื่อคำนวณผลต่าง';return}
+ const current=Number(v);
+ if(!Number.isFinite(current)||current<0){$('used').textContent='—';$('calcNote').textContent='กรุณากรอกตัวเลขที่ถูกต้อง';return}
+ if(!prev){$('used').textContent='รอเลขครั้งก่อน';$('calcNote').textContent='บันทึกเลขมิเตอร์ครั้งก่อนเพื่อหาผลต่าง';return}
+ const diff=current-prev.value;
+ $('used').textContent=(diff>=0?diff.toLocaleString('th-TH',{maximumFractionDigits:2})+' หน่วย':'เลขมิเตอร์น้อยกว่าครั้งก่อน');
+ $('calcNote').textContent=diff>=0?`ประมาณ ${money(diff*rate())} · เทียบกับวันที่ ${prev.key.split('-').reverse().join('/')}`:'ตรวจสอบเลขมิเตอร์อีกครั้ง';
+}
+$('meter').addEventListener('input',updatePreview);
+$('rate').addEventListener('input',()=>{render()});
+$('save').addEventListener('click',()=>{
+ const v=$('meter').value,k=key(selected);if(v===''||!Number.isFinite(Number(v))||Number(v)<0){alert('กรุณากรอกเลขมิเตอร์ให้ถูกต้อง');return}
+ const prev=previousReading(k);if(prev&&Number(v)<prev.value){if(!confirm('เลขมิเตอร์น้อยกว่าครั้งก่อน ต้องการบันทึกหรือไม่?'))return}
+ data[k]=Number(v);saveStore();render();
+});
+$('delete').addEventListener('click',()=>{const k=key(selected);if(!Object.hasOwn(data,k))return;if(confirm('ลบข้อมูลของวันที่เลือกใช่ไหม?')){delete data[k];saveStore();render()}});
+$('prev').addEventListener('click',()=>{view.setMonth(view.getMonth()-1);selected=new Date(view.getFullYear(),view.getMonth(),1,12);render()});
+$('next').addEventListener('click',()=>{view.setMonth(view.getMonth()+1);selected=new Date(view.getFullYear(),view.getMonth(),1,12);render()});
+render();
+})();
+</script>
+</body></html>
