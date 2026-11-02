@@ -79,7 +79,6 @@ const rateKey='lavenderElectricityRate_v1';
 
 let data={}; try{data=JSON.parse(localStorage.getItem(storeKey)||'{}')}catch(e){data={}}
 
-// โหลดราคาต่อหน่วยล่าสุดที่เคยบันทึกไว้
 const savedRate=localStorage.getItem(rateKey);
 if(savedRate!==null&&!isNaN(savedRate)){
  $('rate').value=savedRate;
@@ -121,7 +120,7 @@ function render(){
  updatePreview();
  const entries=$('entries');entries.innerHTML='';
  if(!monthRecords.length){entries.innerHTML='<div class="muted" style="font-size:12px">ยังไม่มีรายการในเดือนนี้ 🌸</div>'}
- monthRecords.slice().reverse().forEach(k=>{let u=usage(k),d=new Date(k+'T12:00:00'),row=document.createElement('div');row.className='entry';row.innerHTML=`<span>${d.getDate()} ${monthNames[d.getMonth()]}</span><span style="text-align:right"><b>${u===null?'—':u.toLocaleString('th-TH',{maximumFractionDigits:2})+' หน่วย'}</b><br><span class="muted">${u===null?'ยังไม่มีเลขก่อนหน้า':money(Math.max(0,u)*rate())}</span></span>`;row.addEventListener('click',()=>{selected=d;render()});entries.append(row)});
+ monthRecords.slice().reverse().forEach(k=>{let u=usage(k),d=new Date(k+'T12:00:00'),row=document.createElement('div');row.className='entry';row.innerHTML=`<span>${d.getDate()} ${monthNames[d.getMonth()]}</span><span style="text-align:right"><b>${u===null?'—':u.toLocaleString('th-TH',{maximumFractionDigits:2})} หน่วย</b><br><span class="muted">${u===null?'ยังไม่มีเลขก่อนหน้า':money(Math.max(0,u)*rate())}</span></span>`;row.addEventListener('click',()=>{selected=d;render()});entries.append(row)});
 }
 function updatePreview(){
  const v=$('meter').value,k=key(selected),prev=previousReading(k);
@@ -138,7 +137,12 @@ $('rate').addEventListener('input',()=>{saveRate();render()});
 $('save').addEventListener('click',()=>{
  const v=$('meter').value,k=key(selected);if(v===''||!Number.isFinite(Number(v))||Number(v)<0){alert('กรุณากรอกเลขมิเตอร์ให้ถูกต้อง');return}
  const prev=previousReading(k);if(prev&&Number(v)<prev.value){if(!confirm('เลขมิเตอร์น้อยกว่าครั้งก่อน ต้องการบันทึกหรือไม่?'))return}
- data[k]=Number(v);saveStore();render();
+ 
+ // เพิ่มป๊อปอัปยืนยันการบันทึกข้อมูล
+ if(confirm(`ยืนยันการบันทึกเลขมิเตอร์ "${v}" ของวันที่ ${selected.getDate()} ${monthNames[selected.getMonth()]} ${selected.getFullYear()+543} ใช่ไหมครับ?`)){
+  data[k]=Number(v);saveStore();render();
+  alert('บันทึกข้อมูลเรียบร้อยแล้วครับ 🌸');
+ }
 });
 $('delete').addEventListener('click',()=>{const k=key(selected);if(!Object.hasOwn(data,k))return;if(confirm('ลบข้อมูลของวันที่เลือกใช่ไหม?')){delete data[k];saveStore();render()}});
 $('prev').addEventListener('click',()=>{view.setMonth(view.getMonth()-1);selected=new Date(view.getFullYear(),view.getMonth(),1,12);render()});
@@ -147,4 +151,3 @@ render();
 })();
 </script>
 </body></html>
-```eof
